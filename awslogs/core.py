@@ -28,7 +28,7 @@ COLOR_ENABLED = {
 
 def milis2iso(milis):
     res = datetime.utcfromtimestamp(milis/1000.0).isoformat()
-    return (res + ".000")[:23] + 'Z'
+    return f'{f"{res}.000"[:23]}Z'
 
 
 def boto3_client(aws_profile, aws_access_key_id, aws_secret_access_key, aws_session_token, aws_region):
@@ -107,10 +107,10 @@ class AWSLogs(object):
                      len(streams),
                      self.FILTER_LOG_EVENTS_STREAMS_LIMIT
                 )
-            if len(streams) == 0:
+            if not streams:
                 raise exceptions.NoStreamsFilteredError(self.log_stream_name)
 
-        max_stream_length = max([len(s) for s in streams]) if streams else 10
+        max_stream_length = max(len(s) for s in streams) if streams else 10
         group_length = len(self.log_group_name)
 
         # Note: filter_log_events paginator is broken
@@ -219,6 +219,7 @@ class AWSLogs(object):
                     else:
                         # We don't want to handle any other errors from this
                         raise
+
         try:
             consumer()
         except KeyboardInterrupt:
@@ -265,9 +266,7 @@ class AWSLogs(object):
 
     def color(self, text, color):
         """Returns coloured version of ``text`` if ``color_enabled``."""
-        if self.color_enabled:
-            return colored(text, color)
-        return text
+        return colored(text, color) if self.color_enabled else text
 
     def parse_datetime(self, datetime_text):
         """Parse ``datetime_text`` into a ``datetime``."""
@@ -276,9 +275,7 @@ class AWSLogs(object):
             return None
 
         ago_regexp = r'(\d+)\s?(m|minute|minutes|h|hour|hours|d|day|days|w|weeks|weeks)(?: ago)?'
-        ago_match = re.match(ago_regexp, datetime_text)
-
-        if ago_match:
+        if ago_match := re.match(ago_regexp, datetime_text):
             amount, unit = ago_match.groups()
             amount = int(amount)
             unit = {'m': 60, 'h': 3600, 'd': 86400, 'w': 604800}[unit[0]]
