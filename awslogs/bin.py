@@ -21,8 +21,9 @@ def main(argv=None):
     argv = (argv or sys.argv)[1:]
 
     parser = argparse.ArgumentParser(usage=("%(prog)s [ get | groups | streams ]"))
-    parser.add_argument("--version", action="version",
-                        version="%(prog)s " + __version__)
+    parser.add_argument(
+        "--version", action="version", version=f"%(prog)s {__version__}"
+    )
 
     def add_common_arguments(parser):
         parser.add_argument("--aws-access-key-id",

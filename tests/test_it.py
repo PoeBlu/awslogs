@@ -194,8 +194,9 @@ class TestAWSLogs(unittest.TestCase):
         ]
 
         awslogs = AWSLogs()
-        self.assertEqual([g for g in awslogs.get_groups()],
-                         ['A', 'B', 'C', 'D', 'E', 'F', 'G'])
+        self.assertEqual(
+            list(awslogs.get_groups()), ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+        )
 
     @patch('awslogs.core.boto3_client')
     def test_get_groups_with_log_group_prefix(self, botoclient):
@@ -206,8 +207,7 @@ class TestAWSLogs(unittest.TestCase):
         ]
 
         awslogs = AWSLogs(log_group_prefix='log_group_prefix')
-        self.assertEqual([g for g in awslogs.get_groups()],
-                         ['A'])
+        self.assertEqual(list(awslogs.get_groups()), ['A'])
 
     @patch('awslogs.core.boto3_client')
     def test_get_streams(self, botoclient):
@@ -226,8 +226,9 @@ class TestAWSLogs(unittest.TestCase):
         ]
 
         awslogs = AWSLogs(log_group_name='group')
-        self.assertEqual([g for g in awslogs.get_streams()],
-                         ['A', 'B', 'C', 'D', 'E', 'F', 'G'])
+        self.assertEqual(
+            list(awslogs.get_streams()), ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+        )
 
     @patch('awslogs.core.boto3_client')
     @patch('awslogs.core.AWSLogs.parse_datetime')
@@ -245,7 +246,7 @@ class TestAWSLogs(unittest.TestCase):
         ]
         parse_datetime.side_effect = [5, 7]
         awslogs = AWSLogs(log_group_name='group', start='5', end='7')
-        self.assertEqual([g for g in awslogs.get_streams()], ['B', 'C', 'E'])
+        self.assertEqual(list(awslogs.get_streams()), ['B', 'C', 'E'])
 
     @patch('awslogs.core.boto3_client')
     def test_get_streams_from_pattern(self, botoclient):
@@ -268,17 +269,17 @@ class TestAWSLogs(unittest.TestCase):
 
         client.get_paginator.return_value.paginate.return_value = side_effect
         expected = ['AAA', 'ABA', 'ACA', 'BAA', 'BBA', 'BBB', 'CAC']
-        actual = [s for s in awslogs._get_streams_from_pattern('X', 'ALL')]
+        actual = list(awslogs._get_streams_from_pattern('X', 'ALL'))
         self.assertEqual(actual, expected)
 
         client.get_paginator.return_value.paginate.return_value = side_effect
         expected = ['AAA', 'ABA', 'ACA']
-        actual = [s for s in awslogs._get_streams_from_pattern('X', 'A')]
+        actual = list(awslogs._get_streams_from_pattern('X', 'A'))
         self.assertEqual(actual, expected)
 
         client.get_paginator.return_value.paginate.return_value = side_effect
         expected = ['AAA', 'ACA']
-        actual = [s for s in awslogs._get_streams_from_pattern('X', 'A[AC]A')]
+        actual = list(awslogs._get_streams_from_pattern('X', 'A[AC]A'))
         self.assertEqual(actual, expected)
 
     @patch('awslogs.core.boto3_client')
